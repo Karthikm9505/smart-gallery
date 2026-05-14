@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 
+// Use environment variable from Vercel, default to localhost for dev
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 function App() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('Idle');
   const [images, setImages] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(''); // Moved inside the component
+  const [searchTerm, setSearchTerm] = useState(''); 
 
-  // --- Handlers ---
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
@@ -21,7 +23,8 @@ function App() {
     
     setStatus('Requesting security token...');
     try {
-      const res = await fetch(`http://localhost:5000/api/upload-url?fileName=${encodeURIComponent(file.name)}&fileType=${file.type}`);
+      // UPDATED: Used API_BASE_URL
+      const res = await fetch(`${API_BASE_URL}/api/upload-url?fileName=${encodeURIComponent(file.name)}&fileType=${file.type}`);
       const data = await res.json();
 
       if (!data.uploadUrl || !data.s3Key) throw new Error("Handshake failed");
@@ -35,7 +38,8 @@ function App() {
 
       if (uploadRes.ok) {
         setStatus('Saving to DynamoDB...');
-        const confirmRes = await fetch('http://localhost:5000/api/confirm-upload', {
+        // UPDATED: Used API_BASE_URL
+        const confirmRes = await fetch(`${API_BASE_URL}/api/confirm-upload`, {
           method: "POST", 
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -46,13 +50,15 @@ function App() {
         });
 
         if (confirmRes.ok) {
-          setStatus("Success! Tracked in DynamoDB.");
-          fetchGallery(); // Refresh the list
+          setStatus("Success! Processing tags...");
+          fetchGallery(); 
           setFile(null);
+          
+          // Delayed refresh to catch the AI tags from Lambda
           setTimeout(() => {
-          fetchGallery();
-          setStatus("Gallery Updated with AI Tags!");
-  }, 5000); // 3000ms = 3 seconds
+            fetchGallery();
+            setStatus("Gallery Updated with AI Tags!");
+          }, 5000); 
         } else {
           throw new Error("DB registration failed");
         }
@@ -67,7 +73,8 @@ function App() {
 
   const fetchGallery = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/gallery');
+      // UPDATED: Used API_BASE_URL
+      const res = await fetch(`${API_BASE_URL}/api/gallery`);
       const data = await res.json();
       setImages(data);
     } catch (err) {
@@ -79,8 +86,6 @@ function App() {
     fetchGallery();
   }, []);
 
-  // --- Search Logic ---
-  // This runs automatically whenever 'searchTerm' or 'images' changes
   const filteredImages = images.filter(img => {
     const term = searchTerm.toLowerCase();
     const fileNameMatches = img.fileName?.toLowerCase().includes(term);
@@ -90,88 +95,43 @@ function App() {
 
   return (
     <div style={{ padding: '40px', fontFamily: 'sans-serif', maxWidth: '1200px', margin: '0 auto', backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
-      <header style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1 style={{ color: '#333', fontSize: '2.5rem' }}>Cloud Smart Gallery</h1>
-        <p style={{ color: '#666' }}>AI-Powered Image Discovery</p>
-      </header>
+      <h1>Cloud Smart Gallery</h1>
       
-      {/* Upload Section */}
-      <div style={{ marginBottom: '30px', padding: '25px', backgroundColor: '#fff', border: '1px solid #eee', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-        <h3 style={{ marginTop: 0 }}>Upload New Media</h3>
-        <input type="file" onChange={handleFileChange} accept="image/*" style={{ marginBottom: '10px' }} />
-        <button 
-          onClick={handleUpload} 
-          style={{ 
-            padding: '10px 20px', 
-            backgroundColor: '#007bff', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '5px', 
-            cursor: 'pointer' 
-          }}
-        >
+      <div style={{ marginBottom: '30px', padding: '25px', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
+        <h3>Upload Image</h3>
+        <input type="file" onChange={handleFileChange} accept="image/*" />
+        <button onClick={handleUpload} style={{ marginLeft: '10px', padding: '8px 15px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
           Upload to Cloud
         </button> 
-        <p style={{ fontSize: '14px', marginTop: '15px' }}>Status: <span style={{ fontWeight: 'bold', color: status.includes('failed') ? 'red' : '#007bff'}}>{status}</span></p> 
+        <p>Status: <strong>{status}</strong></p> 
       </div>
 
-      {/* Search Input */}
-      <div style={{ marginBottom: '30px' }}>
-        <input 
-          type="text" 
-          placeholder="🔍 Search tags (e.g. Parrot, Nature, Coffee)..." 
-          style={{ 
-            padding: '15px', 
-            width: '100%', 
-            maxWidth: '500px', 
-            borderRadius: '8px', 
-            border: '2px solid #ddd',
-            fontSize: '16px',
-            outline: 'none'
-          }}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      <input 
+        type="text" 
+        placeholder="🔍 Search tags (e.g. Parrot, Nature)..." 
+        style={{ padding: '12px', width: '100%', maxWidth: '400px', marginBottom: '30px', borderRadius: '8px', border: '1px solid #ddd' }}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
 
-      {/* Gallery Grid Section */}
-      {filteredImages.length > 0 ? (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-          gap: '25px' 
-        }}>
-          {filteredImages.map((img) => (
-            <div key={img.id} style={{ backgroundColor: '#fff', border: '1px solid #eee', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-              <img 
-                src={img.displayUrl || img.s3Url} 
-                alt={img.fileName} 
-                style={{ width: '100%', height: '220px', objectFit: 'cover' }} 
-              />
-              <div style={{ padding: '15px' }}>
-                <p style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px', color: '#333', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{img.fileName}</p>
-                
-                {/* AI Tags Rendering */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                  {img.aiTags?.length > 0 ? (
-                    img.aiTags.map((tag, i) => (
-                      <span key={i} style={{ fontSize: '10px', background: '#e7f3ff', color: '#007bff', padding: '4px 8px', borderRadius: '20px', fontWeight: '600', textTransform: 'uppercase' }}>
-                        {tag}
-                      </span>
-                    ))
-                  ) : (
-                    <span style={{ fontSize: '12px', color: '#999', fontStyle: 'italic' }}>Analyzing...</span>
-                  )}
-                </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' }}>
+        {filteredImages.map((img) => (
+          <div key={img.id} style={{ backgroundColor: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+            <img src={img.s3Url} alt={img.fileName} style={{ width: '100%', height: '220px', objectFit: 'cover' }} />
+            <div style={{ padding: '15px' }}>
+              <p style={{ fontWeight: 'bold', margin: '0 0 10px 0' }}>{img.fileName}</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                {img.aiTags?.length > 0 ? (
+                  img.aiTags.map((tag, i) => (
+                    <span key={i} style={{ fontSize: '10px', background: '#e7f3ff', color: '#007bff', padding: '4px 8px', borderRadius: '20px', fontWeight: 'bold' }}>{tag}</span>
+                  ))
+                ) : (
+                  <span style={{ fontSize: '12px', color: '#999' }}>Analyzing...</span>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div style={{ textAlign: 'center', padding: '50px', color: '#999' }}>
-          <h3>No images found matching "{searchTerm}"</h3>
-          <p>Try searching for a different tag or upload a new image.</p>
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
