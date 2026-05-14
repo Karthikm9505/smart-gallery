@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # The Backend (Inside the 'server' folder)
+  backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    # UPDATED: Points to the .env inside the server folder
+    env_file:
+      - ./server/.env
+    restart: always
+
+  # The Frontend (Inside the 'client' folder)
+  frontend:
+    build: 
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: always
