@@ -1,0 +1,28 @@
+name: Smart Gallery CI
+
+# 1. Trigger: When code is pushed to the 'main' branch
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # 2. Define the Test Job
+  build-and-test:
+    runs-on: ubuntu-latest # Runs on a fresh Linux virtual machine
+
+    steps:
+      # Step 3: Download your code into the runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 4: Build Backend Container
+      - name: Build Backend Docker Image
+        run: |
+          docker build ./server --file ./server/Dockerfile -t gallery-backend:test
+
+      # Step 5: Build Frontend Container
+      - name: Build Frontend Docker Image
+        run: |
+          docker build ./client --file ./client/Dockerfile -t gallery-frontend:test
