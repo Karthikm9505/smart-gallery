@@ -1,0 +1,16 @@
+# Ignore environment variables (AWS Keys)
+.env
+server/.env
+
+# Ignore dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Ignore build files
+dist/
+build/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
