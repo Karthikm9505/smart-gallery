@@ -27,7 +27,35 @@ function App() {
   };
 
   useEffect(() => {
-    fetchGallery();
+    let isMounted = true;
+
+    const loadGallery = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/gallery`);
+
+        if (!res.ok) {
+          throw new Error('Gallery request failed');
+        }
+
+        const data = await res.json();
+
+        if (isMounted) {
+          setImages(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch gallery:', err);
+
+        if (isMounted) {
+          setStatus({ type: 'error', text: 'Could not load the gallery. Please try again.' });
+        }
+      }
+    };
+
+    loadGallery();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleFileChange = (e) => {
