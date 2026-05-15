@@ -3,26 +3,24 @@ const cors = require('cors');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, PutCommand, ScanCommand } = require("@aws-sdk/lib-dynamodb");
+const { DynamoDBDocumentClient, PutCommand, QueryCommand } = require("@aws-sdk/lib-dynamodb"); // We swapped Scan for Query!
 
 require('dotenv').config();
 
+// 1. IMPORT THE BOUNCER
+const requireAuth = require('./authMiddleware');
+
 const app = express();
-const PORT = process.env.PORT || 5000; // Render will provide a dynamic port
+const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = [
   'http://localhost:5173',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-// UPDATED: Restrictive CORS for production
 app.use(cors({
   origin(origin, callback) {
-    if (
-      !origin ||
-      allowedOrigins.includes(origin) ||
-      origin.endsWith('.vercel.app')
-    ) {
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
       callback(new Error(`CORS blocked for origin: ${origin}`));
@@ -51,9 +49,12 @@ const ddbClient = new DynamoDBClient({
 });
 const docClient = DynamoDBDocumentClient.from(ddbClient);
 
-app.get('/api/upload-url', async (req, res) => {
+// Route 1: Get S3 Link (SECURED)
+app.get('/api/upload-url', requireAuth, async (req, res) => {
   const { fileName, fileType } = req.query;
-  const s3Key = `uploads/${Date.now()}_${fileName}`; 
+  
+  // 2. LOGICAL S3 PARTITIONING (Inject the userId into the folder path)
+  const s3Key = `uploads/${req.user.id}/${Date.now()}_${fileName}`; 
 
   const command = new PutObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME,
@@ -69,19 +70,22 @@ app.get('/api/upload-url', async (req, res) => {
   }
 });
 
-app.post('/api/confirm-upload', async (req, res) => {
+// Route 2: Save Metadata (SECURED)
+app.post('/api/confirm-upload', requireAuth, async (req, res) => {
   const { fileName, fileType, s3Key } = req.body; 
   const permanentUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${s3Key}`;
 
+  // 3. MULTI-TENANT DATABASE ITEM
   const command = new PutCommand({
-    TableName: process.env.AWS_DYNAMODB_TABLE_NAME,
+    TableName: process.env.AWS_DYNAMODB_TABLE_NAME, 
     Item: {
+      userId: req.user.id,                    // Partition Key (Strictly isolates data)
+      createdAt: new Date().toISOString(),    // Sort Key (For chronological ordering)
       id: s3Key, 
       fileName: fileName,
       fileType: fileType,
       s3Url: permanentUrl,
-      aiTags: [],
-      createdAt: new Date().toISOString()
+      aiTags: []
     }
   });
 
@@ -93,9 +97,17 @@ app.post('/api/confirm-upload', async (req, res) => {
   }
 });
 
-app.get('/api/gallery', async (req, res) => {
-  const command = new ScanCommand({
-    TableName: process.env.AWS_DYNAMODB_TABLE_NAME
+// Route 3: Fetch User Gallery (SECURED)
+app.get('/api/gallery', requireAuth, async (req, res) => {
+  
+  // 4. THE QUERY COMMAND (No more scanning!)
+  const command = new QueryCommand({
+    TableName: process.env.AWS_DYNAMODB_TABLE_NAME,
+    KeyConditionExpression: "userId = :uid",
+    ExpressionAttributeValues: {
+      ":uid": req.user.id
+    },
+    ScanIndexForward: false // Retrieves the newest photos first
   });
 
   try {
@@ -106,6 +118,6 @@ app.get('/api/gallery', async (req, res) => {
   }
 });
 
-app.get('/health', (req, res) => res.send('API is running...'));
+app.get('/health', (req, res) => res.send('Secure API is running...'));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
