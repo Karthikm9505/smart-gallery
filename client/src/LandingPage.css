@@ -1,0 +1,592 @@
+/* ============================================================
+   LANDING PAGE STYLES
+   Scoped to the LandingPage component only.
+   LoginPage and SmartGallery are NOT affected.
+============================================================ */
+
+/* CSS Variables (landing page scope) */
+.landing-page {
+  --primary: #adc6ff;
+  --primary-gradient: linear-gradient(to right, #4d8eff, #005ac2);
+  --surface: #121414;
+  --surface-container: #1e2020;
+  --surface-container-low: #1a1c1c;
+  --surface-dim: #121414;
+  --surface-variant: #333535;
+  --on-surface: #e2e2e2;
+  --on-surface-variant: #c2c6d6;
+  --outline-variant: #424754;
+  --background: #0b0f19;
+
+  background-color: var(--background);
+  color: var(--on-surface);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: "Geist", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAVBAR ── */
+
+.landing-page .glass-nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 50;
+  background-color: rgba(30, 32, 32, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(173, 198, 255, 0.15);
+}
+
+.landing-page .nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  height: 80px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.landing-page .logo {
+  font-size: 48px;
+  line-height: 56px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+.landing-page .nav-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.landing-page .login-btn {
+  display: none;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+@media (min-width: 768px) {
+  .landing-page .login-btn {
+    display: block;
+  }
+}
+
+.landing-page .login-btn:hover {
+  color: white;
+}
+
+.landing-page .btn-primary {
+  background: var(--primary-gradient);
+  color: white;
+  padding: 8px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.landing-page .btn-primary:active {
+  transform: scale(0.98);
+}
+
+.landing-page .btn-primary.lg {
+  padding: 12px 32px;
+  font-weight: 700;
+  box-shadow: 0 0 24px rgba(77, 142, 255, 0.3);
+}
+
+.landing-page .btn-primary.lg:hover {
+  box-shadow: 0 0 32px rgba(77, 142, 255, 0.5);
+}
+
+/* ── HERO ── */
+
+.landing-page .hero-section {
+  margin-top: 128px;
+  padding: 0 24px;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 32px;
+  margin-bottom: 64px;
+  /* override margin-top after auto margins */
+  padding-top: 128px;
+}
+
+.landing-page .hero-content {
+  max-width: 896px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.landing-page .hero-title {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #adc6ff 0%, #fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@media (min-width: 768px) {
+  .landing-page .hero-title {
+    font-size: 48px;
+    line-height: 56px;
+  }
+}
+
+.landing-page .hero-subtitle {
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--on-surface-variant);
+  max-width: 672px;
+  margin: 0 auto;
+}
+
+.landing-page .hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (min-width: 640px) {
+  .landing-page .hero-actions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+.landing-page .hero-visual {
+  width: 100%;
+  margin-top: 32px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 32px 0 rgba(173, 198, 255, 0.15);
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background-color: var(--surface-container-low);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-page .hero-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+}
+
+.landing-page .hero-visual-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #0b0f19, transparent);
+}
+
+.landing-page .hero-visual-icon {
+  position: absolute;
+  text-align: center;
+}
+
+.landing-page .hero-visual-icon .material-symbols-outlined {
+  font-size: 64px;
+  color: var(--primary);
+  opacity: 0.8;
+}
+
+/* ── FEATURES BENTO GRID ── */
+
+.landing-page .features-section {
+  padding: 0 24px;
+  max-width: 1280px;
+  margin: 0 auto 64px auto;
+  width: 100%;
+}
+
+.landing-page .bento-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .landing-page .bento-grid {
+    grid-template-columns: repeat(12, 1fr);
+  }
+}
+
+.landing-page .bento-card {
+  background-color: #1e293b;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  box-shadow: 0 0 32px 0 rgba(173, 198, 255, 0.05);
+}
+
+.landing-page .bento-card:hover {
+  border-color: var(--primary);
+}
+
+.landing-page .bento-card-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to top, rgba(173, 198, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.landing-page .bento-card.horizontal .bento-card-gradient {
+  right: 0;
+  top: 0;
+  bottom: auto;
+  left: auto;
+  width: 33.333%;
+  height: 100%;
+  background: linear-gradient(to left, rgba(173, 198, 255, 0.05), transparent);
+}
+
+.landing-page .bento-card:hover .bento-card-gradient {
+  opacity: 1;
+}
+
+.landing-page .bento-card-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.landing-page .bento-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background-color: var(--surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  border: 1px solid var(--outline-variant);
+}
+
+.landing-page .bento-icon-wrapper .material-symbols-outlined {
+  color: var(--primary);
+}
+
+.landing-page .bento-title {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--on-surface);
+}
+
+.landing-page .bento-desc {
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--on-surface-variant);
+}
+
+/* Feature grid column spans */
+.landing-page .feature-1 {
+  grid-column: span 1;
+  justify-content: space-between;
+}
+
+.landing-page .feature-2 {
+  grid-column: span 1;
+}
+
+.landing-page .feature-3 {
+  grid-column: span 1;
+}
+
+@media (min-width: 768px) {
+  .landing-page .feature-1 {
+    grid-column: span 7;
+  }
+
+  .landing-page .feature-2 {
+    grid-column: span 5;
+  }
+
+  .landing-page .feature-3 {
+    grid-column: span 12;
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .landing-page .feature-3 .bento-card-content {
+    width: 50%;
+  }
+
+  .landing-page .feature-3 .bento-visual {
+    width: 50%;
+    margin-top: 0;
+  }
+}
+
+/* Bento visuals */
+.landing-page .bento-visual {
+  margin-top: 32px;
+  position: relative;
+  border-radius: 8px;
+  background-color: var(--surface-dim);
+  border: 1px solid rgba(66, 71, 84, 0.5);
+  z-index: 10;
+}
+
+.landing-page .visual-tags {
+  height: 192px;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.landing-page .visual-tags-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url(https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80);
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+}
+
+.landing-page .tag {
+  background-color: rgba(173, 198, 255, 0.2);
+  color: var(--primary);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 14px;
+  line-height: 20px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(173, 198, 255, 0.3);
+  z-index: 20;
+}
+
+.landing-page .visual-search {
+  background-color: var(--surface-container-low);
+  border-color: var(--outline-variant);
+  padding: 16px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.landing-page .search-bar {
+  width: 100%;
+  background-color: var(--surface-dim);
+  border-radius: 4px;
+  border: 1px solid var(--primary);
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  box-shadow: 0 0 12px rgba(173, 198, 255, 0.2);
+}
+
+.landing-page .search-bar .material-symbols-outlined {
+  color: var(--on-surface-variant);
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.landing-page .search-bar span {
+  font-size: 14px;
+  color: var(--on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.landing-page .search-results {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0.5;
+}
+
+.landing-page .search-result-line {
+  height: 32px;
+  background-color: var(--surface-variant);
+  border-radius: 4px;
+}
+
+.landing-page .visual-security {
+  height: 192px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-page .visual-security .material-symbols-outlined {
+  font-size: 80px;
+  color: rgba(173, 198, 255, 0.4);
+  transition: color 0.5s;
+}
+
+.landing-page .bento-card:hover .visual-security .material-symbols-outlined {
+  color: var(--primary);
+}
+
+/* ── CTA ── */
+
+.landing-page .cta-section {
+  padding: 64px 24px;
+  max-width: 896px;
+  margin: 0 auto 64px auto;
+  width: 100%;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.landing-page .cta-title {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+  color: var(--on-surface);
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 768px) {
+  .landing-page .cta-title {
+    font-size: 48px;
+    line-height: 56px;
+  }
+}
+
+.landing-page .cta-desc {
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--on-surface-variant);
+  max-width: 512px;
+  margin-bottom: 16px;
+}
+
+/* ── FOOTER ── */
+
+.landing-page .footer {
+  background-color: #0c0f0f;
+  border-top: 1px solid rgba(66, 71, 84, 0.2);
+  width: 100%;
+  padding: 32px 0;
+  margin-top: auto;
+}
+
+.landing-page .footer-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .landing-page .footer-container {
+    flex-direction: row;
+  }
+}
+
+.landing-page .footer-logo {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  color: var(--on-surface);
+  letter-spacing: -0.01em;
+}
+
+.landing-page .footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .landing-page .footer-links {
+    justify-content: flex-end;
+  }
+}
+
+.landing-page .footer-link {
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--on-surface-variant);
+  text-decoration: none;
+  text-underline-offset: 4px;
+  transition: color 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.landing-page .footer-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.landing-page .footer-copy {
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--on-surface-variant);
+  text-align: center;
+  margin-top: 16px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .landing-page .footer-copy {
+    text-align: left;
+    margin-top: 0;
+    width: auto;
+  }
+}
