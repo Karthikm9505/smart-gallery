@@ -13,7 +13,9 @@
     "@aws-amplify/ui-react": "^6.15.4",
     "aws-amplify": "^6.17.0",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^7.15.1",
+    "tailwind": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
