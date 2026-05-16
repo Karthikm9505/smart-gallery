@@ -24,7 +24,7 @@ const LandingPage = () => {
       <section className="hero-section">
 
         <div className="hero-content">
-          <h1 className="hero-title">Serverless Media Management Platform</h1>
+          <h1 className="hero-title">Smart Gallery</h1>
           <p className="hero-subtitle">
             Automate your media workflow with AI-powered tagging and secure,
             zero-trust infrastructure.
@@ -32,7 +32,6 @@ const LandingPage = () => {
         </div>
 
         <div className="hero-actions">
-          <Link to="/login" className="btn-primary lg">Get Started</Link>
         </div>
 
         <div className="hero-visual">
@@ -123,7 +122,6 @@ const LandingPage = () => {
       {/* CTA */}
       <section className="cta-section">
         <h2 className="cta-title">Ready to secure your media workflow?</h2>
-        <p className="cta-desc">Join leading enterprises leveraging SecureCloud.</p>
         <div>
           <Link to="/login" className="btn-primary lg">Get Started Now</Link>
         </div>
@@ -132,13 +130,8 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="footer">
         <div className="footer-container">
-          <div className="footer-logo">SecureCloud</div>
           <div className="footer-links">
-            <a href="#" className="footer-link">Privacy Policy</a>
-            <a href="#" className="footer-link">Terms</a>
-            <a href="#" className="footer-link">Documentation</a>
           </div>
-          <p className="footer-copy">© 2024 SecureCloud Infrastructure.</p>
         </div>
       </footer>
 
