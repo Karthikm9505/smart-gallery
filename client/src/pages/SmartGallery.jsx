@@ -156,6 +156,19 @@ const SmartGallery = () => {
 
   const emptyMessage = searchTerm.trim() ? 'No results found.' : 'No images uploaded yet.';
 
+  const handleDownload = (url, fileName) => {
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.target = '_blank';
+  link.setAttribute('download', fileName);
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+};
   return (
     <main className="app-shell">
       <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -193,7 +206,28 @@ const SmartGallery = () => {
         <section className="gallery-grid" aria-label="Uploaded images">
           {filteredImages.map((img) => (
             <article key={img.id} className="image-card">
-              <img src={img.s3Url} alt={img.fileName} />
+               <div className="image-wrapper">
+    <img src={img.s3Url} alt={img.fileName} />
+
+    {/* 3 Dots Menu */}
+    <div className="menu-container">
+      <button className="menu-button">⋮</button>
+
+      <div className="menu-dropdown">
+        <button onClick={() => handleDownload(img.s3Url, img.fileName)}>
+  Download
+</button>
+
+        {/* Future Delete Option */}
+        {/* 
+        <button onClick={() => handleDelete(img.id)}>
+          Delete
+        </button> 
+        */}
+      </div>
+    </div>
+  </div>
+  
               <div className="image-details">
                 <h3>{img.fileName}</h3>
                 <div className="tag-list" aria-label={`${img.fileName} tags`}>
