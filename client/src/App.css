@@ -278,8 +278,11 @@ button:focus-visible {
   padding: 10px 14px;
   border: none;
   background: white;
-  cursor: pointer;
+  color: #222;
+  font-size: 14px;
+  font-weight: 500;
   text-align: left;
+  cursor: pointer;
 }
 
 .menu-dropdown button:hover {

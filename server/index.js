@@ -1,9 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand,GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, PutCommand, QueryCommand } = require("@aws-sdk/lib-dynamodb"); // We swapped Scan for Query!
+const { DynamoDBDocumentClient, PutCommand, QueryCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb"); // We swapped Scan for Query!
 
 require('dotenv').config();
 
@@ -26,7 +26,7 @@ app.use(cors({
       callback(new Error(`CORS blocked for origin: ${origin}`));
     }
   },
-  methods: ['GET', 'POST', 'PUT'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
 
@@ -115,6 +115,67 @@ app.get('/api/gallery', requireAuth, async (req, res) => {
     res.json(response.Items);
   } catch (err) {
     res.status(500).json({ error: "Failed to retrieve gallery items" });
+  }
+});
+// image download
+app.get("/api/download-url", async (req, res) => {
+  try {
+    const key = req.query.key;
+
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: key,
+
+      ResponseContentDisposition: 'attachment',
+    });
+
+    const signedUrl = await getSignedUrl(s3, command, {
+      expiresIn: 60,
+    });
+
+    res.json({ url: signedUrl });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to generate download URL" });
+  }
+});
+
+// delete image
+app.delete('/api/delete-image', requireAuth, async (req, res) => {
+  try {
+    const { s3Key, createdAt } = req.body;
+
+    // 1. Delete from S3
+    const deleteS3Command = new DeleteObjectCommand({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: s3Key,
+    });
+
+    await s3.send(deleteS3Command);
+
+    // 2. Delete from DynamoDB
+    const deleteDbCommand = new DeleteCommand({
+      TableName: process.env.AWS_DYNAMODB_TABLE_NAME,
+      Key: {
+        userId: req.user.id,
+        createdAt: createdAt
+      }
+    });
+
+    await docClient.send(deleteDbCommand);
+
+    res.json({
+      success: true,
+      message: 'Image deleted successfully'
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: 'Failed to delete image'
+    });
   }
 });
 

@@ -12,6 +12,7 @@ const SmartGallery = () => {
   const [status, setStatus] = useState({ type: 'info', text: 'Choose an image to upload.' });
   const [images, setImages] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  
 
   // Protect this route: If someone tries to go to /app without being logged in, redirect them.
   useEffect(() => {
@@ -21,8 +22,8 @@ const SmartGallery = () => {
   }, [navigate]);
 
   const fetchGallery = async () => {
-    try {
-      const { tokens } = await fetchAuthSession(); 
+    try { 
+      const { tokens } = await fetchAuthSession();
       const res = await fetch(`${API_BASE_URL}/api/gallery`, {
         headers: {
           Authorization: `Bearer ${tokens.accessToken.toString()}` 
@@ -156,19 +157,45 @@ const SmartGallery = () => {
 
   const emptyMessage = searchTerm.trim() ? 'No results found.' : 'No images uploaded yet.';
 
-  const handleDownload = (url, fileName) => {
-  const link = document.createElement('a');
+  const handleDownload = async (s3Key) => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/download-url?key=${encodeURIComponent(s3Key)}`
+    );
 
-  link.href = url;
-  link.target = '_blank';
-  link.setAttribute('download', fileName);
+    const data = await response.json();
 
-  document.body.appendChild(link);
+    window.open(data.url, "_self");
 
-  link.click();
-
-  document.body.removeChild(link);
+  } catch (error) {
+    console.error("Download failed:", error);
+  }
 };
+
+const handleDelete = async (img)=>{
+  try{
+    const { tokens } = await fetchAuthSession();
+    const response = await fetch(`${API_BASE_URL}/api/delete-image`, {
+  method: 'DELETE',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${tokens.accessToken.toString()}`
+  },
+  body: JSON.stringify({
+    s3Key: img.id,
+    createdAt: img.createdAt
+  })
+});
+const data = await response.json();
+if(data.success){
+  await fetchGallery();
+}
+  }
+  catch(err){
+  console.error("Image Deletion failed:", err);
+}
+
+}
   return (
     <main className="app-shell">
       <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -214,16 +241,15 @@ const SmartGallery = () => {
       <button className="menu-button">⋮</button>
 
       <div className="menu-dropdown">
-        <button onClick={() => handleDownload(img.s3Url, img.fileName)}>
+        <button onClick={() => handleDownload(img.s3Url.split(".amazonaws.com/")[1])}>
   Download
 </button>
 
-        {/* Future Delete Option */}
-        {/* 
-        <button onClick={() => handleDelete(img.id)}>
+         
+        <button onClick={() => handleDelete(img)}>
           Delete
         </button> 
-        */}
+        
       </div>
     </div>
   </div>
